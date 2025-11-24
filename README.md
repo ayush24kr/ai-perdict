@@ -347,4 +347,4 @@ If you find this project useful, please consider giving it a star!
 
 **Made with ❤️ for better cycle tracking**
 
-[![Star on GitHub](https://img.shields.io/github/stars/yourusername/menstrual-cycle-api.svg?style=social)](https://github.com/yourusername/menstrual-cycle-api)
+[![Star on GitHub](https://img.shields.io/github/stars/ayush24kr/menstrual-cycle-api.svg?style=social)](https://github.com/ayush24kr/menstrual-cycle-api)
