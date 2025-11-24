@@ -28,11 +28,6 @@ AI-powered REST API for predicting next menstrual cycle start dates using LSTM/G
 - [Contributing](#-contributing)
 - [License](#-license)
 
-## 🎮 Demo
-
-**Live API:** https://pleasant-spontaneity-production-bd9d.up.railway.app
-
-**Interactive Docs:** https://pleasant-spontaneity-production-bd9d.up.railway.app/docs
 
 ## 🛠️ Installation
 
@@ -45,7 +40,7 @@ AI-powered REST API for predicting next menstrual cycle start dates using LSTM/G
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/menstrual-cycle-api.git
+   git clone https://github.com/ayush24kr/menstrual-cycle-api.git
    cd menstrual-cycle-api
    ```
 
@@ -160,7 +155,7 @@ curl -X POST "http://localhost:8000/predict" \
 ```python
 import requests
 
-url = "https://pleasant-spontaneity-production-bd9d.up.railway.app/predict"
+url = "/predict"
 
 data = {
     "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29, 27, 30, 28, 29],
@@ -180,7 +175,7 @@ print(f"Confidence: ±{result['uncertainty_days']:.1f} days")
 
 ```javascript
 const predictCycle = async () => {
-  const response = await fetch('https://pleasant-spontaneity-production-bd9d.up.railway.app/predict', {
+  const response = await fetch('/predict', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -203,7 +198,7 @@ predictCycle();
 
 ```bash
 # Make prediction
-curl -X POST "https://pleasant-spontaneity-production-bd9d.up.railway.app/predict" \
+curl -X POST "/predict" \
   -H "Content-Type: application/json" \
   -d '{
     "past_cycles": [28, 30, 27, 29, 28, 31],
@@ -211,12 +206,7 @@ curl -X POST "https://pleasant-spontaneity-production-bd9d.up.railway.app/predic
     "framework": "pytorch"
   }'
 
-# Check health
-curl https://pleasant-spontaneity-production-bd9d.up.railway.app/health
 
-# List available frameworks
-curl https://pleasant-spontaneity-production-bd9d.up.railway.app/frameworks
-```
 
 ## 🚀 Deployment
 
@@ -305,24 +295,6 @@ HIDDEN_SIZE = 32         # LSTM hidden layer size
 LEARNING_RATE = 0.01     # Optimizer learning rate
 ```
 
-## 🧪 Testing
-
-### Run Tests
-
-```bash
-# Install test dependencies
-pip install pytest httpx
-
-# Run tests
-pytest tests/
-```
-
-### Manual Testing
-
-Visit the interactive documentation:
-```
-http://localhost:8000/docs
-```
 
 ## 🔒 Security Notes
 
@@ -356,21 +328,6 @@ Contributions are welcome! Please follow these steps:
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-### Development Setup
-
-```bash
-# Install dev dependencies
-pip install -r requirements-dev.txt
-
-# Run linter
-flake8 .
-
-# Format code
-black .
-
-# Type checking
-mypy .
-```
 
 ## 📝 License
 
