@@ -375,14 +375,19 @@ async def list_frameworks():
 
 if __name__ == "__main__":
     import uvicorn
+    import os
+    
+    # Get port from environment variable (Railway, Render, etc.) or default to 8000
+    port = int(os.environ.get("PORT", 8000))
+    
     print("=" * 70)
     print("MENSTRUAL CYCLE PREDICTION API")
     print("=" * 70)
     print(f"PyTorch Available: {PYTORCH_AVAILABLE}")
     print(f"TensorFlow Available: {TENSORFLOW_AVAILABLE}")
     print("=" * 70)
-    print("Starting server on http://localhost:8000")
-    print("API Documentation: http://localhost:8000/docs")
+    print(f"Starting server on port {port}")
+    print(f"API Documentation: http://localhost:{port}/docs")
     print("=" * 70)
     
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)
