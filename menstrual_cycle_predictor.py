@@ -67,6 +67,48 @@ UNSAFE_KEYWORDS = [
     "terminate pregnancy myself", "dangerous pills"
 ]
 
+# Health-related keywords for topic validation
+HEALTH_RELATED_KEYWORDS = [
+    # Menstrual cycle
+    "period", "menstruation", "menstrual", "cycle", "pms", "pmdd",
+    "cramps", "cramping", "bleeding", "spotting", "flow",
+    # Reproductive health
+    "pregnancy", "pregnant", "ovulation", "fertility", "conception",
+    "contraception", "birth control", "iud", "pill",
+    # Anatomy
+    "uterus", "ovaries", "vagina", "cervix", "fallopian", "endometrium",
+    # Hormones
+    "estrogen", "progesterone", "hormone", "hormonal",
+    # Symptoms
+    "discharge", "pain", "irregular", "heavy", "light", "late",
+    # General health
+    "gynecologist", "obgyn", "doctor", "health", "medical",
+    "symptoms", "pcos", "endometriosis", "fibroids",
+    # Hygiene
+    "tampon", "pad", "menstrual cup", "hygiene",
+    # Pregnancy related
+    "trimester", "fetus", "baby", "labor", "delivery", "breastfeeding",
+    "postpartum", "miscarriage", "abortion"
+]
+
+# Off-topic keywords (obviously unrelated topics)
+OFF_TOPIC_KEYWORDS = [
+    # Technology
+    "computer", "laptop", "software", "programming", "code", "python",
+    "javascript", "app development", "website", "algorithm",
+    # Sports
+    "football", "basketball", "cricket", "soccer", "tennis",
+    # Entertainment
+    "movie", "film", "music", "song", "game", "video game",
+    "netflix", "youtube", "tiktok",
+    # Food (unless related to health)
+    "recipe", "cooking", "restaurant", "pizza", "burger",
+    # General unrelated
+    "weather", "politics", "stock market", "cryptocurrency",
+    "car", "vehicle", "travel destination", "vacation",
+    "math homework", "history", "geography"
+]
+
 SYSTEM_PROMPT = """You are a supportive, knowledgeable reproductive health education assistant for girls and women. Your role is to provide accurate, general educational information only.
 
 CRITICAL SAFETY RULES YOU MUST FOLLOW:
@@ -76,6 +118,8 @@ CRITICAL SAFETY RULES YOU MUST FOLLOW:
 4. NEVER provide instructions for self-surgery or dangerous home remedies
 5. ALWAYS encourage professional medical consultation for specific health concerns
 6. Provide only general educational information about reproductive health
+7. ONLY answer questions related to reproductive health, menstrual cycles, pregnancy, fertility, and women's health
+8. REFUSE to answer questions about unrelated topics like technology, sports, entertainment, food recipes, etc.
 
 TOPICS YOU CAN DISCUSS:
 - Menstrual cycle education (phases, normal variations)
@@ -86,6 +130,14 @@ TOPICS YOU CAN DISCUSS:
 - Fertility basics and ovulation
 - Hygiene and general self-care
 - When to see a doctor
+- PCOS, endometriosis, and other reproductive health conditions (educational info only)
+
+TOPICS YOU CANNOT DISCUSS:
+- Technology, programming, computers
+- Sports, entertainment, movies, music
+- Food recipes (unless directly related to menstrual health)
+- Politics, finance, travel
+- General knowledge unrelated to reproductive health
 
 YOUR COMMUNICATION STYLE:
 - Polite, supportive, and non-judgmental
@@ -102,6 +154,16 @@ RESPONSE FORMAT:
 
 Remember: You are an educational resource, not a replacement for medical professionals."""
 
+TOPIC_VALIDATION_PROMPT = """You are a topic classifier. Determine if the following question is related to reproductive health, menstrual cycles, pregnancy, fertility, or women's health.
+
+Respond with ONLY one word:
+- "RELEVANT" if the question is about reproductive health, periods, pregnancy, fertility, hormones, gynecological health, or related topics
+- "IRRELEVANT" if the question is about technology, sports, entertainment, food, politics, general knowledge, or any other unrelated topic
+
+Question: {message}
+
+Classification:"""
+
 def check_emergency(message: str) -> bool:
     message_lower = message.lower()
     return any(keyword in message_lower for keyword in EMERGENCY_KEYWORDS)
@@ -109,6 +171,41 @@ def check_emergency(message: str) -> bool:
 def check_unsafe(message: str) -> bool:
     message_lower = message.lower()
     return any(keyword in message_lower for keyword in UNSAFE_KEYWORDS)
+
+def is_obviously_off_topic(message: str) -> bool:
+    """Quick check for obviously off-topic questions using keywords."""
+    message_lower = message.lower()
+    
+    # Check for off-topic keywords
+    has_off_topic = any(keyword in message_lower for keyword in OFF_TOPIC_KEYWORDS)
+    
+    # Check for health-related keywords
+    has_health_keywords = any(keyword in message_lower for keyword in HEALTH_RELATED_KEYWORDS)
+    
+    # If it has off-topic keywords and no health keywords, it's likely off-topic
+    if has_off_topic and not has_health_keywords:
+        return True
+    
+    return False
+
+def validate_topic_with_ai(message: str) -> bool:
+    """Use AI to validate if the question is related to reproductive health."""
+    try:
+        validation_response = client.chat.completions.create(
+            messages=[
+                {"role": "user", "content": TOPIC_VALIDATION_PROMPT.format(message=message)}
+            ],
+            model=MODEL_NAME,
+            temperature=0.3,  # Lower temperature for more consistent classification
+            max_tokens=10
+        )
+        
+        classification = validation_response.choices[0].message.content.strip().upper()
+        return "RELEVANT" in classification
+        
+    except Exception:
+        # If AI validation fails, be permissive and allow the question
+        return True
 
 def get_safety_response(message: str) -> Optional[str]:
     if check_emergency(message):
@@ -490,7 +587,7 @@ async def chat(request: ChatRequest):
     if len(request.message) > 1000:
         raise HTTPException(status_code=400, detail="Message too long (max 1000 characters)")
     
-    # Check for safety triggers
+    # Check for safety triggers first
     safety_response = get_safety_response(request.message)
     
     if safety_response:
@@ -499,7 +596,38 @@ async def chat(request: ChatRequest):
             safety_triggered=True
         )
     
-    # Get AI response
+    # Validate topic relevance - Two-layer approach
+    # Layer 1: Quick keyword-based check
+    if is_obviously_off_topic(request.message):
+        return ChatResponse(
+            response="""I'm a specialized reproductive health education assistant. I can only answer questions related to:
+
+• Menstrual cycles and periods
+• Pregnancy and fertility
+• Reproductive health and anatomy
+• Hormones and women's health
+• Gynecological conditions (PCOS, endometriosis, etc.)
+
+Your question appears to be about a different topic. Please ask me about reproductive health, and I'll be happy to help! 😊""",
+            safety_triggered=False
+        )
+    
+    # Layer 2: AI-powered validation for ambiguous cases
+    if not validate_topic_with_ai(request.message):
+        return ChatResponse(
+            response="""I'm a specialized reproductive health education assistant. I can only answer questions related to:
+
+• Menstrual cycles and periods
+• Pregnancy and fertility
+• Reproductive health and anatomy
+• Hormones and women's health
+• Gynecological conditions (PCOS, endometriosis, etc.)
+
+Your question doesn't seem to be related to reproductive health. If you have questions about periods, pregnancy, fertility, or women's health, I'm here to help! 😊""",
+            safety_triggered=False
+        )
+    
+    # Get AI response for valid health-related questions
     ai_response = get_ai_response(request.message)
     
     return ChatResponse(
