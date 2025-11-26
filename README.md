@@ -190,20 +190,4 @@ pip install torch  # For PyTorch
 pip install tensorflow  # For TensorFlow
 ```
 
-## Migration from Separate APIs
 
-If you were previously running both APIs separately, you can now:
-
-1. Stop both `chatbot-api.py` and `menstrual_cycle_predictor.py`
-2. Run only `combined_api.py`
-3. Update your client code to use the same base URL for both features
-
-**Before:**
-- Chatbot: `http://localhost:8000/chat`
-- Predictor: `http://localhost:8001/predict`
-
-**After:**
-- Chatbot: `http://localhost:8000/chat`
-- Predictor: `http://localhost:8000/predict`
-
-Both endpoints are now available on the same port!
