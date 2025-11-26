@@ -1,125 +1,93 @@
-# 🌸 Menstrual Cycle Prediction API
+# Combined Reproductive Health API
 
-AI-powered REST API for predicting next menstrual cycle start dates using LSTM/GRU deep learning models. Built with FastAPI and supports both PyTorch and TensorFlow backends.
+This is a unified API that combines both the **Chatbot** and **Menstrual Cycle Predictor** functionalities into a single service.
 
-[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115.0-green.svg)](https://fastapi.tiangolo.com/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.1.0-red.svg)](https://pytorch.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+## Features
 
-## 🚀 Features
+✅ **Reproductive Health Chatbot** - AI-powered educational assistant using Groq  
+✅ **Menstrual Cycle Predictor** - LSTM/GRU-based cycle prediction  
+✅ **Single API** - Run only one service instead of two  
+✅ **Unified Health Checks** - Monitor both features from one endpoint  
 
-- ✨ **AI-Powered Predictions** - Uses LSTM neural networks for time-series forecasting
-- 🔄 **Dual Framework Support** - Choose between PyTorch or TensorFlow
-- 📊 **Statistical Analysis** - Provides confidence intervals and historical statistics
-- 🔒 **Production Ready** - Input validation, error handling, and CORS support
-- 📖 **Interactive Docs** - Auto-generated Swagger UI documentation
-- ⚡ **Fast & Lightweight** - Optimized for serverless deployment
-
-## 📋 Table of Contents
-
-- [Quick Start](#-quick-start)
-- [API Documentation](#-api-documentation)
-- [Usage Examples](#-usage-examples)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-
-## 🛠️ Installation
-
-### Prerequisites
-
-- Python 3.11+
-- pip or conda
-
-### Local Setup
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/ayush24kr/menstrual-cycle-api.git
-   cd menstrual-cycle-api
-   ```
-
-2. **Create virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   
-   For PyTorch (recommended):
-   ```bash
-   pip install -r requirements.txt
-   ```
-   
-   For TensorFlow:
-   ```bash
-   pip install fastapi uvicorn[standard] pydantic numpy tensorflow-cpu
-   ```
-
-## 🚦 Quick Start
-
-### Run Locally
+## Installation
 
 ```bash
-python menstrual_cycle_predictor.py
+# Install required dependencies
+pip install fastapi uvicorn groq pydantic numpy torch tensorflow
 ```
 
-The API will be available at:
-- **API**: http://localhost:8000
-- **Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+## Environment Setup
 
-### Make Your First Prediction
+Set your Groq API key:
 
 ```bash
-curl -X POST "http://localhost:8000/predict" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29, 27, 30, 28, 29],
-    "last_period_date": "2025-01-15",
-    "framework": "pytorch"
-  }'
+# Windows PowerShell
+$env:GROQ_API_KEY="your-api-key-here"
+
+# Windows CMD
+set GROQ_API_KEY=your-api-key-here
+
+# Linux/Mac
+export GROQ_API_KEY=your-api-key-here
 ```
 
-## 📚 API Documentation
+## Running the API
 
-### Endpoints
+```bash
+python combined_api.py
+```
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Root health check |
-| `/health` | GET | Detailed health status |
-| `/predict` | POST | Predict next menstrual cycle |
-| `/frameworks` | GET | List available ML frameworks |
-| `/docs` | GET | Swagger UI documentation |
-| `/redoc` | GET | ReDoc documentation |
+The API will start on `http://localhost:8000`
 
-### Request Schema
+## API Endpoints
 
-**POST /predict**
+### 🏠 Root Endpoint
+```
+GET /
+```
+Returns API status and available features
 
+### ❤️ Health Check
+```
+GET /health
+```
+Check status of both chatbot and cycle predictor
+
+### 💬 Chatbot
+```
+POST /chat
+```
+
+**Request Body:**
 ```json
 {
-  "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29, 27, 30, 28, 29],
+  "message": "What is a normal menstrual cycle?"
+}
+```
+
+**Response:**
+```json
+{
+  "response": "Educational response from AI...",
+  "safety_triggered": false
+}
+```
+
+### 📊 Cycle Prediction
+```
+POST /predict
+```
+
+**Request Body:**
+```json
+{
+  "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29, 27, 30],
   "last_period_date": "2025-01-15",
   "framework": "pytorch"
 }
 ```
 
-**Parameters:**
-- `past_cycles` (required): Array of past cycle lengths in days (minimum 4 cycles)
-- `last_period_date` (required): Last period start date (YYYY-MM-DD format)
-- `framework` (optional): ML framework to use - `"pytorch"` or `"tensorflow"` (default: `"pytorch"`)
-
-**Validation Rules:**
-- Minimum 4 past cycles required
-- Cycle lengths must be between 20-45 days
-- Date must be in YYYY-MM-DD format
-
-### Response Schema
-
+**Response:**
 ```json
 {
   "predicted_cycle_length": 29,
@@ -133,218 +101,109 @@ curl -X POST "http://localhost:8000/predict" \
     "latest_date": "2025-02-15"
   },
   "statistics": {
-    "average_cycle_length": 28.5,
-    "std_deviation": 1.31,
+    "average_cycle_length": 28.7,
+    "std_deviation": 1.34,
     "min_cycle": 27,
     "max_cycle": 31,
-    "total_cycles_analyzed": 12
+    "total_cycles_analyzed": 10
   },
-  "uncertainty_days": 1.31,
+  "uncertainty_days": 1.34,
   "framework_used": "pytorch"
 }
 ```
 
-## 💡 Usage Examples
+### 🔬 Available Frameworks
+```
+GET /frameworks
+```
+Lists available ML frameworks (PyTorch/TensorFlow)
 
-### Python
+## Testing the API
+
+### Using cURL
+
+**Test Chatbot:**
+```bash
+curl -X POST "http://localhost:8000/chat" \
+  -H "Content-Type: application/json" \
+  -d "{\"message\": \"What is ovulation?\"}"
+```
+
+**Test Cycle Predictor:**
+```bash
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d "{\"past_cycles\": [28, 30, 27, 29, 28, 31], \"last_period_date\": \"2025-01-15\", \"framework\": \"pytorch\"}"
+```
+
+### Using Python
 
 ```python
 import requests
 
-url = "/predict"
+# Test Chatbot
+response = requests.post(
+    "http://localhost:8000/chat",
+    json={"message": "What causes period cramps?"}
+)
+print(response.json())
 
-data = {
-    "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29, 27, 30, 28, 29],
-    "last_period_date": "2025-01-15",
-    "framework": "pytorch"
-}
-
-response = requests.post(url, json=data)
-result = response.json()
-
-print(f"Next period predicted: {result['predicted_next_period']}")
-print(f"Cycle length: {result['predicted_cycle_length']} days")
-print(f"Confidence: ±{result['uncertainty_days']:.1f} days")
+# Test Cycle Predictor
+response = requests.post(
+    "http://localhost:8000/predict",
+    json={
+        "past_cycles": [28, 30, 27, 29, 28, 31, 28, 29],
+        "last_period_date": "2025-01-15",
+        "framework": "pytorch"
+    }
+)
+print(response.json())
 ```
 
-### JavaScript/Fetch
+## Interactive Documentation
 
-```javascript
-const predictCycle = async () => {
-  const response = await fetch('/predict', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      past_cycles: [28, 30, 27, 29, 28, 31, 28, 29, 27, 30, 28, 29],
-      last_period_date: "2025-01-15",
-      framework: "pytorch"
-    })
-  });
-  
-  const data = await response.json();
-  console.log('Next period:', data.predicted_next_period);
-};
+Visit `http://localhost:8000/docs` for interactive Swagger UI documentation where you can test all endpoints directly in your browser.
 
-predictCycle();
-```
+## Port Configuration
 
-### cURL
+By default, the API runs on port 8000. You can change this using the PORT environment variable:
 
 ```bash
-# Make prediction
-curl -X POST "/predict" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "past_cycles": [28, 30, 27, 29, 28, 31],
-    "last_period_date": "2025-01-15",
-    "framework": "pytorch"
-  }'
+# Windows PowerShell
+$env:PORT=5000
+python combined_api.py
 
+# Linux/Mac
+PORT=5000 python combined_api.py
+```
 
+## Troubleshooting
 
-## 🚀 Deployment
+### Groq API Key Missing
+If you see "❌ Missing" for the Groq API key, make sure you've set the environment variable correctly.
 
-### Deploy to Railway
-
-1. **Create `requirements.txt`:**
-   ```txt
-   fastapi==0.115.0
-   uvicorn[standard]==0.30.0
-   pydantic==2.9.0
-   numpy==1.26.4
-   --extra-index-url https://download.pytorch.org/whl/cpu
-   torch==2.1.0+cpu
-   ```
-
-2. **Create `Procfile`:**
-   ```
-   web: uvicorn menstrual_cycle_predictor:app --host 0.0.0.0 --port $PORT
-   ```
-
-3. **Create `runtime.txt`:**
-   ```
-   python-3.11.5
-   ```
-
-4. **Deploy:**
-   ```bash
-   # Push to GitHub
-   git add .
-   git commit -m "Initial commit"
-   git push
-
-   # Deploy on Railway
-   # 1. Go to railway.app
-   # 2. Create new project from GitHub repo
-   # 3. Railway auto-detects and deploys!
-   ```
-
-### Deploy to Other Platforms
-
-#### Render
+### PyTorch/TensorFlow Not Available
+Install the required ML framework:
 ```bash
-# Same files as Railway
-# Deploy from dashboard at render.com
+pip install torch  # For PyTorch
+# OR
+pip install tensorflow  # For TensorFlow
 ```
 
-#### Docker
-```dockerfile
-FROM python:3.11-slim
+## Migration from Separate APIs
 
-WORKDIR /app
+If you were previously running both APIs separately, you can now:
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+1. Stop both `chatbot-api.py` and `menstrual_cycle_predictor.py`
+2. Run only `combined_api.py`
+3. Update your client code to use the same base URL for both features
 
-COPY . .
+**Before:**
+- Chatbot: `http://localhost:8000/chat`
+- Predictor: `http://localhost:8001/predict`
 
-CMD ["uvicorn", "menstrual_cycle_predictor:app", "--host", "0.0.0.0", "--port", "8000"]
-```
+**After:**
+- Chatbot: `http://localhost:8000/chat`
+- Predictor: `http://localhost:8000/predict`
 
-```bash
-docker build -t cycle-prediction-api .
-docker run -p 8000:8000 cycle-prediction-api
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-```bash
-# Optional: Set default framework
-export DEFAULT_FRAMEWORK=pytorch
-
-# Optional: Set port (default: 8000)
-export PORT=8080
-```
-
-### Model Hyperparameters
-
-Edit in `menstrual_cycle_predictor.py`:
-
-```python
-SEQUENCE_LENGTH = 6      # Number of past cycles to use
-EPOCHS = 50              # Training epochs
-HIDDEN_SIZE = 32         # LSTM hidden layer size
-LEARNING_RATE = 0.01     # Optimizer learning rate
-```
-
-
-## 🔒 Security Notes
-
-⚠️ **Important Disclaimers:**
-- This API is for **informational purposes only**
-- Not a substitute for professional medical advice
-- Predictions are based on historical patterns
-- Individual cycle variations are normal
-- Always consult healthcare professionals for medical concerns
-
-## 📊 Model Information
-
-### Architecture
-- **Model Type**: LSTM (Long Short-Term Memory)
-- **Input**: Sequence of past cycle lengths
-- **Output**: Predicted next cycle length
-- **Features**: Time-series pattern recognition
-
-### Performance
-- **Training Time**: ~100-300ms per request
-- **Accuracy**: Varies based on cycle regularity
-- **Confidence Interval**: ±1 standard deviation
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Built with [FastAPI](https://fastapi.tiangolo.com/)
-- ML powered by [PyTorch](https://pytorch.org/) and [TensorFlow](https://www.tensorflow.org/)
-- Deployed on [Railway](https://railway.app/)
-
-## 📧 Contact
-
-- **Issues**: [GitHub Issues](https://github.com/ayush24kr/menstrual-cycle-api/issues)
-
-## ⭐ Star History
-
-If you find this project useful, please consider giving it a star!
-
----
-
-**Made with ❤️ for better cycle tracking**
-
-[![Star on GitHub](https://img.shields.io/github/stars/ayush24kr/menstrual-cycle-api.svg?style=social)](https://github.com/ayush24kr/menstrual-cycle-api)
+Both endpoints are now available on the same port!
