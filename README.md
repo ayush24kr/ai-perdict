@@ -34,7 +34,7 @@ export GROQ_API_KEY=your-api-key-here
 ## Running the API
 
 ```bash
-python combined_api.py
+python menstrual_cycle_predictor.py
 ```
 
 The API will start on `http://localhost:8000`
@@ -171,10 +171,10 @@ By default, the API runs on port 8000. You can change this using the PORT enviro
 ```bash
 # Windows PowerShell
 $env:PORT=5000
-python combined_api.py
+python menstrual_cycle_predictor.py
 
 # Linux/Mac
-PORT=5000 python combined_api.py
+PORT=5000 python menstrual_cycle_predictor.py
 ```
 
 ## Troubleshooting
