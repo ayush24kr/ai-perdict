@@ -1,4 +1,4 @@
-# Combined Reproductive Health API
+# Reproductive Health API
 
 This is a unified API that combines both the **Chatbot** and **Menstrual Cycle Predictor** functionalities into a single service.
 
